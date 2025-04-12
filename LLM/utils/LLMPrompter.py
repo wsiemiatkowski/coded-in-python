@@ -27,11 +27,34 @@ class LLMPrompter:
         return llm_response.choices[0].message.content
 
 
-if __name__ == "__main__":
-    llm_prompter = LLMPrompter(model="qwen2.5:14b")
+class FewShotLLMPrompter(LLMPrompter):
+    def __init__(self, model=os.getenv("BASE_MODEL")):
+        """
+        This is a few shot version of LLMPrompter.
+        It allows for more context to be provided.
+        """
+        super().__init__(model)
+        self.history = [
+            {"role": "system", "content": "You are a helpful assistant."}
+        ]
 
-    # A simple example
-    prompt = "What is the capital of France?"
-    response = llm_prompter.prompt_llm(prompt)
+    def add_few_shot_examples(self, examples):
+        """
+        Add few-shot examples to the history.
+        format: List of tuples (like self.history)
+        """
+        for user_msg, assistant_reply in examples:
+            self.history.append({"role": "user", "content": user_msg})
+            self.history.append({"role": "assistant", "content": assistant_reply})
 
-    print(response)
+    def prompt_llm(self, message):
+        prompt_messages = self.history + [{"role": "user", "content": message}]
+
+        llm_response = self.client.chat.completions.create(
+            model=self.model,
+            messages=prompt_messages,
+        )
+
+        reply = llm_response.choices[0].message.content
+
+        return reply

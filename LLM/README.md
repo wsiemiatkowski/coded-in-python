@@ -22,4 +22,6 @@ Port 11434 is standard for this service however it may vary in individual cases 
 
 ### Utils
 Utils houses the crucial pieces to the scripts in LLM directory. In `.env` you will find the address and model names 
-for this project. `LLMPrompter.py` contains classes that alaaaalow inferencing of the Ollama hosted models.
+for this project. `LLMPrompter.py` contains classes that allows inferencing of the Ollama hosted models.
+Class `LLMPrompter` can be used for simple chatting with LLM, while LLMPrompterFewShot contains examples
+that provide more context for the model to use.
