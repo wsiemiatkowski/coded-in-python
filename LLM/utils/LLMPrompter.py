@@ -24,6 +24,7 @@ class LLMPrompter:
                 {"role": "user", "content": message},
             ],
         )
+
         return llm_response.choices[0].message.content
 
 
@@ -34,9 +35,7 @@ class FewShotLLMPrompter(LLMPrompter):
         It allows for more context to be provided.
         """
         super().__init__(model)
-        self.history = [
-            {"role": "system", "content": "You are a helpful assistant."}
-        ]
+        self.history = [{"role": "system", "content": "You are a helpful assistant."}]
 
     def add_few_shot_examples(self, examples):
         """
@@ -55,6 +54,4 @@ class FewShotLLMPrompter(LLMPrompter):
             messages=prompt_messages,
         )
 
-        reply = llm_response.choices[0].message.content
-
-        return reply
+        return llm_response.choices[0].message.content
