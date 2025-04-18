@@ -1,6 +1,7 @@
 # This code requires a local LLM running on ollama, please refer to README.
 
 import os
+from typing import Tuple, List
 
 from dotenv import load_dotenv
 from openai import OpenAI
@@ -16,7 +17,7 @@ class LLMPrompter:
             base_url=os.getenv("URL"), api_key="ollama"  # This is required tho unused
         )
 
-    def prompt_llm(self, message):
+    def prompt_llm(self, message: str) -> str:
         llm_response = self.client.chat.completions.create(
             model=self.model,
             messages=[
@@ -29,29 +30,20 @@ class LLMPrompter:
 
 
 class FewShotLLMPrompter(LLMPrompter):
-    def __init__(self, model=os.getenv("BASE_MODEL")):
-        """
-        This is a few shot version of LLMPrompter.
-        It allows for more context to be provided.
-        """
-        super().__init__(model)
-        self.history = [{"role": "system", "content": "You are a helpful assistant."}]
+    def prompt_llm_with_history(
+        self, message: str, history: List[Tuple[str, str]], system_prompt: str
+    ) -> str:
+        messages = [{"role": "system", "content": system_prompt}]
 
-    def add_few_shot_examples(self, examples):
-        """
-        Add few-shot examples to the history.
-        format: List of tuples (like self.history)
-        """
-        for user_msg, assistant_reply in examples:
-            self.history.append({"role": "user", "content": user_msg})
-            self.history.append({"role": "assistant", "content": assistant_reply})
+        for chat in history:
+            messages.append({"role": "user", "content": chat[0]})
+            messages.append({"role": "system", "content": chat[1]})
 
-    def prompt_llm(self, message):
-        prompt_messages = self.history + [{"role": "user", "content": message}]
+        messages.append({"role": "user", "content": message})
 
         llm_response = self.client.chat.completions.create(
             model=self.model,
-            messages=prompt_messages,
+            messages=messages,
         )
 
         return llm_response.choices[0].message.content
