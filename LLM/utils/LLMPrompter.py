@@ -28,9 +28,7 @@ class LLMPrompter:
 
         return llm_response.choices[0].message.content
 
-
-class FewShotLLMPrompter(LLMPrompter):
-    def prompt_llm_with_history(
+    def prompt_llm_few_shot(
         self, message: str, history: List[Tuple[str, str]], system_prompt: str
     ) -> str:
         messages = [{"role": "system", "content": system_prompt}]
